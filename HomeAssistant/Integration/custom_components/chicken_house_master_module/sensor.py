@@ -28,9 +28,6 @@ class ChickenHouseTemperatureEntity(SensorEntity):
     """La classe de l'entité TutoHacs"""
     serial_port = ""
     serial_baudrate = 115200
-    serial_stopbits = 1
-    serial_bytesize = 8
-    serial_parity = 'N'
     channel = 111
     pa_level = "LOW"
     data_rate = "1MBPS"
@@ -70,9 +67,6 @@ class ChickenHouseTemperatureEntity(SensorEntity):
 
         self.serial_port = entry_infos.get("serial_port")
         self.serial_baudrate = entry_infos.get("serial_baudrate")
-        self.serial_stopbits = entry_infos.get("serial_stopbits")
-        self.serial_bytesize = entry_infos.get("serial_bytesize")
-        self.serial_parity = entry_infos.get("serial_parity")
         self.channel = entry_infos.get("rf_channel")
         self.pa_level = entry_infos.get("rf_power_amplifier")
         self.data_rate = entry_infos.get("rf_data_rate")
@@ -86,9 +80,9 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         """Ce callback est appelé lorsque l'entité est ajoutée à HA """
         self.serial = serial.serial_for_url(port_url, do_not_open=True)
         ser.baudrate = config[model]["comms"]["transport"]["baudrate"]
-        ser.stopbits = config[model]["comms"]["transport"]["stopbits"]
-        ser.bytesize = config[model]["comms"]["transport"]["bytesize"]
-        ser.parity = config[model]["comms"]["transport"]["parity"]
+        ser.stopbits = 1
+        ser.bytesize = 8
+        ser.parity = 'N'
         ser.timeout = config[model]["comms"]["transport"]["timeout"]
         ser.write_timeout = config[model]["comms"]["transport"]["write_timeout"]
         ser.open()
