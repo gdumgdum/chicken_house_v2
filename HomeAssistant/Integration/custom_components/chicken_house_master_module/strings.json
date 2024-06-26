@@ -1,0 +1,28 @@
+{
+    "title": "chicken house master module",
+    "config": {
+        "flow_title": "Chicken House Master Module configuration",
+        "step": {
+            "serial_settings": {
+                "title": "Chicken House Master Module configuration",
+                "description": "Enter the full path to the serial port created by the Chicken House Master Module",
+                "data": {
+                    "port": "Port"
+                },
+                "data_description": {
+                    "name": "Usually starts with /dev/serial/by-id/"
+                }
+            },
+            "rf_settings": {
+                "title": "Chicken House Master Module configuration",
+                "description": "Enter the RF channel to use",
+                "data": {
+                    "port": "Port"
+                },
+                "data_description": {
+                    "name": "Available channels: 111 or 124"
+                }
+            }
+        }
+    }
+}

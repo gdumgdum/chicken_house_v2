@@ -1,0 +1,14 @@
+{
+    "domain": "chicken_house_master_module",
+    "name": "Chicken House master module",
+    "codeowners": [
+        "@gdumgdum"
+    ],
+    "config_flow": true,
+    "documentation": "https://github.com/gdumgdum/chicken_house_v2",
+    "issue_tracker": "https://github.com/gdumgdum/chicken_house_v2/issues",
+    "integration_type": "device",
+    "iot_class": "local_push",
+    "quality_scale": "silver",
+    "version": "3.0.0"
+}
