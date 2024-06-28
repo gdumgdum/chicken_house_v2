@@ -10,6 +10,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.helpers.entity import DeviceInfo
+from .const import CONF_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,7 +98,7 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         self._device_id = self._attr_name = entry_infos[CONF_NAME]
 
         # TODO initialize the master module
-        _LOGGER.debug("Using serial [%s]", self.serial_device)
+       #  _LOGGER.debug("Using serial [%s]", self.serial_device)
 
 
     @callback

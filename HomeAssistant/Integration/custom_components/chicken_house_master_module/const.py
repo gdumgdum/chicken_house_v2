@@ -6,6 +6,8 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 DEVICE_MANUFACTURER = "Gautier Dumke"
 DEVICE_MODEL = "Chicken House Maser Module"
 
+CONF_NAME = "name"
+
 CONF_SERIAL_PORT = "serial_port"
 CONF_SERIAL_BAUDRATE = "serial_baudrate"
 CONF_SERIAL_BAUDRATE_4800 = "4800"

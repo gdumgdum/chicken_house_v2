@@ -45,6 +45,41 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     _user_inputs: dict = {}
+    _configuration_form = vol.Schema(  # pylint: disable=invalid-name
+    {
+        vol.Required(CONF_NAME): cv.string,
+        vol.Required(CONF_SERIAL_PORT): cv.string,
+        vol.Required(
+            CONF_SERIAL_BAUDRATE, default=CONF_SERIAL_BAUDRATE_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_SERIAL_BAUDRATES, mode="dropdown" #, translation_key="baudrate"
+            )
+        ),
+        vol.Required(
+            CONF_RF_CHANNEL, default=CONF_RF_CHANNEL_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_CHANNELS, mode="list" #, translation_key="rf_channel"
+            )
+        ),
+        vol.Required(
+            CONF_RF_PALEVEL, default=CONF_RF_PALEVEL_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_PALEVELS, mode="dropdown" #, translation_key="rf_pa_level"
+            ),
+        ),
+        vol.Required(
+            CONF_RF_DATARATE, default=CONF_RF_DATARATE_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_DATARATES, mode="dropdown" #, translation_key="rf_data_rate"
+            ),
+        ),
+    }
+    )
+
 
     async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
         """Gestion de l'étape 'user'. Point d'entrée de notre
@@ -53,40 +88,6 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
         2. une deuxième fois avec les données saisies par l'utilisateur dans user_input -> on sauvegarde les données saisies
         """
 
-        configuration_form = vol.Schema(  # pylint: disable=invalid-name
-        {
-            vol.Required(CONF_SERIAL_PORT): cv.string,
-            vol.Required(
-                CONF_SERIAL_BAUDRATE, default=CONF_SERIAL_BAUDRATE_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_SERIAL_BAUDRATES, mode="dropdown" #, translation_key="baudrate"
-                )
-            ),
-            vol.Required(
-                CONF_RF_CHANNEL, default=CONF_RF_CHANNEL_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_CHANNELS, mode="list" #, translation_key="rf_channel"
-                )
-            ),
-            vol.Required(
-                CONF_RF_PALEVEL, default=CONF_RF_PALEVEL_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_PALEVELS, mode="dropdown" #, translation_key="rf_pa_level"
-                ),
-            ),
-            vol.Required(
-                CONF_RF_DATARATE, default=CONF_RF_DATARATE_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_DATARATES, mode="dropdown" #, translation_key="rf_data_rate"
-                ),
-            ),
-        }
-        )
-
         if user_input is None:
             _LOGGER.debug(
                 "config_flow step user (1). 1er appel : pas de user_input -> on affiche le form user_form"
@@ -94,7 +95,7 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id="user",
                 data_schema=add_suggested_values_to_schema(
-                    data_schema=configuration_form, suggested_values=self._user_inputs
+                    data_schema=self._configuration_form, suggested_values=self._user_inputs
                 ),
             )
 
@@ -107,7 +108,7 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
         self._user_inputs.update(user_input)
 
         return self.async_create_entry(
-            title="chicken_house_master_module_configuration", data=self._user_inputs
+            title=self._configuration_form, data=self._user_inputs
         )
 
     @staticmethod
@@ -123,6 +124,40 @@ class ChickenHouseMasterModuleOptionsFlow(OptionsFlow):
     _user_inputs: dict = {}
     # Pour mémoriser la config en cours
     config_entry: ConfigEntry = None
+    _configuration_form = vol.Schema(  # pylint: disable=invalid-name
+    {
+        vol.Required(CONF_NAME): cv.string,
+        vol.Required(CONF_SERIAL_PORT): cv.string,
+        vol.Required(
+            CONF_SERIAL_BAUDRATE, default=CONF_SERIAL_BAUDRATE_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_SERIAL_BAUDRATES, mode="dropdown" #, translation_key="baudrate"
+            )
+        ),
+        vol.Required(
+            CONF_RF_CHANNEL, default=CONF_RF_CHANNEL_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_CHANNELS, mode="list" #, translation_key="rf_channel"
+            )
+        ),
+        vol.Required(
+            CONF_RF_PALEVEL, default=CONF_RF_PALEVEL_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_PALEVELS, mode="dropdown" #, translation_key="rf_pa_level"
+            ),
+        ),
+        vol.Required(
+            CONF_RF_DATARATE, default=CONF_RF_DATARATE_DEFAULT
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=CONF_RF_DATARATES, mode="dropdown" #, translation_key="rf_data_rate"
+            ),
+        ),
+    }
+    )
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialisation de l'option flow. On a le ConfigEntry existant en entrée"""
@@ -134,39 +169,6 @@ class ChickenHouseMasterModuleOptionsFlow(OptionsFlow):
         """Gestion de l'étape 'init'. Point d'entrée de notre
         optionsFlow. Comme pour le ConfigFlow, cette méthode est appelée 2 fois
         """
-        option_form = vol.Schema(
-        {
-            vol.Required(CONF_SERIAL_PORT): cv.string,
-            vol.Required(
-                CONF_SERIAL_BAUDRATE, default=CONF_SERIAL_BAUDRATE_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_SERIAL_BAUDRATES, mode="dropdown" #, translation_key="baudrate"
-                )
-            ),
-            vol.Required(
-                CONF_RF_CHANNEL, default=CONF_RF_CHANNEL_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_CHANNELS, mode="list" #, translation_key="rf_channel"
-                )
-            ),
-            vol.Required(
-                CONF_RF_PALEVEL, default=CONF_RF_PALEVEL_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_PALEVELS, mode="dropdown" #, translation_key="rf_pa_level"
-                ),
-            ),
-            vol.Required(
-                CONF_RF_DATARATE, default=CONF_RF_DATARATE_DEFAULT
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=CONF_RF_DATARATES, mode="dropdown" #, translation_key="rf_data_rate"
-                ),
-            ),
-        }
-        )
 
         if user_input is None:
             _LOGGER.debug(
@@ -176,7 +178,7 @@ class ChickenHouseMasterModuleOptionsFlow(OptionsFlow):
             return self.async_show_form(
                 step_id="init",
                 data_schema=add_suggested_values_to_schema(
-                    data_schema=option_form, suggested_values=self._user_inputs
+                    data_schema=self._configuration_form, suggested_values=self._user_inputs
                     ),
             )
 
