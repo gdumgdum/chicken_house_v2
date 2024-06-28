@@ -8,7 +8,7 @@
     "documentation": "https://github.com/gdumgdum/chicken_house_v2",
     "issue_tracker": "https://github.com/gdumgdum/chicken_house_v2/issues",
     "integration_type": "device",
-    "iot_class": "local_push",
+    "iot_class": "local_polling",
     "quality_scale": "silver",
     "version": "3.0.0"
 }

@@ -108,7 +108,7 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
         self._user_inputs.update(user_input)
 
         return self.async_create_entry(
-            title=self._configuration_form, data=self._user_inputs
+            title=self._user_inputs[CONF_NAME], data=self._user_inputs
         )
 
     @staticmethod

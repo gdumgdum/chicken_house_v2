@@ -1,5 +1,6 @@
 """ Implements the VersatileThermostat sensors component """
 import logging
+from datetime import datetime, timedelta
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
@@ -9,8 +10,17 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.helpers.entity import DeviceInfo
-from .const import CONF_NAME
+from homeassistant.helpers.device_registry import DeviceInfo, DeviceEntryType
+from .const import (
+    DOMAIN,
+    DEVICE_MANUFACTURER,
+    CONF_NAME,
+)
+from homeassistant.const import UnitOfTemperature
+from homeassistant.helpers.event import (
+    async_track_time_interval,
+    async_track_state_change_event,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +47,7 @@ async def async_setup_entry(
 
     _LOGGER.debug("Calling async_setup_entry entry=%s", entry)
 
-    entity = ChickenHouseTemperatureEntity(hass, entry.data)
+    entity = ChickenHouseTemperatureEntity(hass, entry)
     async_add_entities([entity], True)
 
     # Add services
@@ -71,7 +81,7 @@ class ChickenHouseTemperatureEntity(SensorEntity):
 
     @property
     def should_poll(self) -> bool:
-        return True
+        return False
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -79,7 +89,7 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         return DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
             identifiers={(DOMAIN, self._device_id)},
-            name=DEVICE_MODEL,
+            name=self._device_id,
             manufacturer=DEVICE_MANUFACTURER,
             model=DOMAIN,
         )
@@ -90,12 +100,13 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         entry_infos,  # pylint: disable=unused-argument
     ) -> None:
         """Initisalisation de notre entité"""
-        self._hass = hass
-        self._attr_name = entry_infos.get("name")
-        self._attr_unique_id = entry_infos.get("entity_id")
-        self._attr_has_entity_name = True
         self._attr_native_value = 0
-        self._device_id = self._attr_name = entry_infos[CONF_NAME]
+        self._hass = hass
+        self._attr_has_entity_name = True
+        #self._device_id = self._attr_name = entry_infos[CONF_NAME]
+        self._attr_name = entry_infos.data.get(CONF_NAME)
+        self._attr_unique_id = self._attr_name + "_temperature"
+        self._device_id = entry_infos.entry_id
 
         # TODO initialize the master module
        #  _LOGGER.debug("Using serial [%s]", self.serial_device)
@@ -104,14 +115,14 @@ class ChickenHouseTemperatureEntity(SensorEntity):
     @callback
     async def async_added_to_hass(self):
         """Ce callback est appelé lorsque l'entité est ajoutée à HA """
-        self.serial = serial.serial_for_url(port_url, do_not_open=True)
-        ser.baudrate = config[model]["comms"]["transport"]["baudrate"]
-        ser.stopbits = 1
-        ser.bytesize = 8
-        ser.parity = 'N'
-        ser.timeout = config[model]["comms"]["transport"]["timeout"]
-        ser.write_timeout = config[model]["comms"]["transport"]["write_timeout"]
-        ser.open()
+        #self.serial = serial.serial_for_url(port_url, do_not_open=True)
+        #ser.baudrate = config[model]["comms"]["transport"]["baudrate"]
+        #ser.stopbits = 1
+        #ser.bytesize = 8
+        #ser.parity = 'N'
+        #ser.timeout = config[model]["comms"]["transport"]["timeout"]
+        #ser.write_timeout = config[model]["comms"]["transport"]["write_timeout"]
+        #ser.open()
        
 
         # Arme le timer
@@ -136,8 +147,10 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         if self._attr_native_value != self.previous_attr_native_value:
             self._hass.bus.fire(
                 "event_temperature_change_ChickenHouseTemperatureEntity",
-                {"temperature": self._attr_native_value},
-                {"previous_temperature": self.previous_attr_native_value},
+                {
+                    "temperature": self._attr_native_value,
+                    "previous_temperature": self.previous_attr_native_value
+                },
             )
             self.previous_attr_native_value = self._attr_native_value
 
