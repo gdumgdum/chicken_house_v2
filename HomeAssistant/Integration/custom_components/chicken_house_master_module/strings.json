@@ -22,5 +22,28 @@
                 }
             }
         }
+    },
+    "options": {
+        "flow_title": "Chicken House Master Module options",
+        "step": {
+            "user": {
+                "title": "Chicken House Master Module configuration",
+                "description": "Enter the full path to the serial port created by the Chicken House Master Module",
+                "data": {
+                    "serial_port": "Serial port",
+                    "serial_baudrate": "Serial baudrate",
+                    "rf_channel": "RF Channel",
+                    "rf_pa_level": "RF Power Amplifier",
+                    "rf_data_rate": "RF Data Rate"
+                },
+                "data_description": {
+                    "serial_port": "Usually starts with /dev/serial/by-id/",
+                    "serial_baudrate": "Speed of the serial connection of the Master module",
+                    "rf_channel": "Select the 2.4GHz channel to use",
+                    "rf_pa_level": "Select the RF transmission power",
+                    "rf_data_rate": "Select the RF data rate"
+                }
+            }
+        }
     }
 }

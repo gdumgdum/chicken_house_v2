@@ -1,36 +1,55 @@
 """ Implements the VersatileThermostat sensors component """
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorDeviceClass,
+    SensorStateClass,
+)
+from homeassistant.helpers.entity import DeviceInfo
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-    discovery_info=None,  # pylint: disable=unused-argument
+#async def async_setup_platform(
+#    hass: HomeAssistant,
+#    entry: ConfigEntry,
+#    async_add_entities: AddEntitiesCallback,
+#    discovery_info=None,  # pylint: disable=unused-argument
+#):
+#    """Configuration de la plate-forme tuto_hacs à partir de la configuration
+#    trouvée dans configuration.yaml"""
+#
+#    _LOGGER.debug("Calling async_setup_entry entry=%s", entry)
+#
+#    entity = ChickenHouseTemperatureEntity(hass, entry)
+#    async_add_entities([entity], True)
+
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
-    """Configuration de la plate-forme tuto_hacs à partir de la configuration
-    trouvée dans configuration.yaml"""
+    """Configuration des entités sensor à partir de la configuration
+    ConfigEntry passée en argument"""
 
     _LOGGER.debug("Calling async_setup_entry entry=%s", entry)
 
-    entity = ChickenHouseTemperatureEntity(hass, entry)
+    entity = ChickenHouseTemperatureEntity(hass, entry.data)
     async_add_entities([entity], True)
 
+    # Add services
+#    platform = async_get_current_platform()
+#    platform.async_register_entity_service(
+#        SERVICE_RAZ_COMPTEUR,
+#        {vol.Optional("valeur_depart"): cv.positive_int},
+#        "service_raz_compteur",
+#    )
 
 class ChickenHouseTemperatureEntity(SensorEntity):
     """La classe de l'entité TutoHacs"""
-    serial_port = ""
-    serial_baudrate = 115200
-    channel = 111
-    pa_level = "LOW"
-    data_rate = "1MBPS"
+    _hass: HomeAssistant
     previous_attr_native_value = -99.0
  
     @property
@@ -53,6 +72,17 @@ class ChickenHouseTemperatureEntity(SensorEntity):
     def should_poll(self) -> bool:
         return True
 
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, self._device_id)},
+            name=DEVICE_MODEL,
+            manufacturer=DEVICE_MANUFACTURER,
+            model=DOMAIN,
+        )
+
     def __init__(
         self,
         hass: HomeAssistant,  # pylint: disable=unused-argument
@@ -64,12 +94,7 @@ class ChickenHouseTemperatureEntity(SensorEntity):
         self._attr_unique_id = entry_infos.get("entity_id")
         self._attr_has_entity_name = True
         self._attr_native_value = 0
-
-        self.serial_port = entry_infos.get("serial_port")
-        self.serial_baudrate = entry_infos.get("serial_baudrate")
-        self.channel = entry_infos.get("rf_channel")
-        self.pa_level = entry_infos.get("rf_power_amplifier")
-        self.data_rate = entry_infos.get("rf_data_rate")
+        self._device_id = self._attr_name = entry_infos[CONF_NAME]
 
         # TODO initialize the master module
         _LOGGER.debug("Using serial [%s]", self.serial_device)

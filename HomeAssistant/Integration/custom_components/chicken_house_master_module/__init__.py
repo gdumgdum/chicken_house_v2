@@ -30,3 +30,20 @@ async def async_setup(
 
     # Return boolean to indicate that initialization was successful.
     return True
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Creation des entités à partir d'une configEntry"""
+
+    _LOGGER.debug(
+        "Appel de async_setup_entry entry: entry_id='%s', data='%s'",
+        entry.entry_id,
+        entry.data,
+    )
+
+    hass.data.setdefault(DOMAIN, {})
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    return True
+
+    
