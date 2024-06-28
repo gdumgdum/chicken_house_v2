@@ -5,6 +5,10 @@ import voluptuous as vol
 from typing import Any
 import copy
 from collections.abc import Mapping
+#import serial.tools.list_ports
+import sys
+import glob
+import serial
 
 from homeassistant.config_entries import ConfigFlow, OptionsFlow, ConfigEntry
 from .const import *  # pylint: disable=wildcard-import, unused-wildcard-import
@@ -34,6 +38,42 @@ def add_suggested_values_to_schema(
         schema[new_key] = val
     _LOGGER.debug("add_suggested_values_to_schema: schema=%s", schema)
     return vol.Schema(schema)
+
+def get_serial_ports():
+    #ports = serial.tools.list_ports.comports()
+
+    #for port, desc, hwid in sorted(ports):
+    #    _LOGGER.debug("Detected serial port: [%s]", port)
+    
+    #return ports
+    """ Lists serial port names
+
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/serial/by-id/*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+            _LOGGER.debug("Detected serial port: [%s]", port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
+
 
 
 class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -87,6 +127,7 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
         1. une première fois sans user_input -> on affiche le formulaire de configuration
         2. une deuxième fois avec les données saisies par l'utilisateur dans user_input -> on sauvegarde les données saisies
         """
+        get_serial_ports()
 
         if user_input is None:
             _LOGGER.debug(
