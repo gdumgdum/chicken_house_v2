@@ -90,7 +90,8 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is None:
             _LOGGER.debug(
-                "config_flow step user (1). 1er appel : pas de user_input -> on affiche le form user_form"
+                "(%d) config_flow step user (1). 1er appel : pas de user_input -> on affiche le form user_form",
+                id(self._user_inputs)
             )
             return self.async_show_form(
                 step_id="user",
@@ -102,13 +103,15 @@ class ChickenHouseMasterModuleConfigFlow(ConfigFlow, domain=DOMAIN):
         # 2ème appel : il y a des user_input -> on stocke le résultat
         # TODO: utiliser les user_input
         _LOGGER.debug(
-            "config_flow step user (2). On a reçu les valeurs: %s", user_input
+            "(%d) config_flow step user (2). On a reçu les valeurs: %s", 
+            id(self._user_inputs),
+            user_input
         )
 
         self._user_inputs.update(user_input)
 
         return self.async_create_entry(
-            title=self._user_inputs[CONF_NAME], data=self._user_inputs
+            title=user_input[CONF_NAME], data=user_input
         )
 
     @staticmethod
